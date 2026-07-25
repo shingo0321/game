@@ -420,5 +420,27 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("restart").addEventListener("click", start);
 document.getElementById("overlay-restart").addEventListener("click", start);
 
+const TOUCH_ACTIONS = {
+  left: () => move(-1),
+  right: () => move(1),
+  down: softDrop,
+  rotate,
+  harddrop: hardDrop,
+  hold: holdPiece,
+  pause: togglePause,
+};
+
+document.querySelectorAll(".touch-btn").forEach((btn) => {
+  btn.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      TOUCH_ACTIONS[btn.dataset.action]();
+    },
+    { passive: false }
+  );
+  btn.addEventListener("click", () => TOUCH_ACTIONS[btn.dataset.action]());
+});
+
 requestAnimationFrame(loop);
 start();
