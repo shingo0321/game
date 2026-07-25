@@ -27,6 +27,7 @@ h1 {
 
 .layout {
   display: flex;
+  align-items: flex-start;
   gap: 20px;
 }
 
@@ -58,7 +59,8 @@ canvas {
   color: #8a8fa8;
 }
 
-.panel #next {
+.panel #next,
+.panel #hold {
   display: block;
   margin: 0 auto;
   background: #12141c;

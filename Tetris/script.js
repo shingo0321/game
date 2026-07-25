@@ -54,13 +54,15 @@ const boardCanvas = document.getElementById("board");
 const ctx = boardCanvas.getContext("2d");
 const nextCanvas = document.getElementById("next");
 const nextCtx = nextCanvas.getContext("2d");
+const holdCanvas = document.getElementById("hold");
+const holdCtx = holdCanvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const linesEl = document.getElementById("lines");
 const levelEl = document.getElementById("level");
 const overlay = document.getElementById("overlay");
 const overlayText = document.getElementById("overlay-text");
 
-let board, bag, current, next, score, lines, level, dropInterval, dropTimer;
+let board, bag, current, next, held, canHold, score, lines, level, dropInterval, dropTimer;
 let paused, gameOver, lastTime;
 
 function createBoard() {
@@ -160,10 +162,38 @@ function spawnNext() {
   current.row = 0;
   current.col = Math.floor((COLS - current.matrix.length) / 2);
   next = spawnPiece(nextFromBag());
+  canHold = true;
   if (collides(current.matrix, current.row, current.col)) {
     endGame();
   }
   drawNext();
+}
+
+function holdPiece() {
+  if (paused || gameOver || !canHold) return;
+  canHold = false;
+  const currentType = current.type;
+  if (held === null) {
+    held = currentType;
+    spawnNext();
+  } else {
+    const swapped = spawnPiece(held);
+    held = currentType;
+    current = swapped;
+    if (collides(current.matrix, current.row, current.col)) {
+      endGame();
+    }
+  }
+  drawHold();
+  draw();
+}
+
+function ghostRow() {
+  let row = current.row;
+  while (!collides(current.matrix, row + 1, current.col)) {
+    row++;
+  }
+  return row;
 }
 
 function move(dx) {
@@ -243,6 +273,12 @@ function drawCell(context, r, c, color) {
   context.fillRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
 }
 
+function drawGhostCell(r, c, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(c * CELL + 2, r * CELL + 2, CELL - 4, CELL - 4);
+}
+
 function draw() {
   ctx.clearRect(0, 0, boardCanvas.width, boardCanvas.height);
   for (let r = 0; r < ROWS; r++) {
@@ -251,6 +287,14 @@ function draw() {
     }
   }
   const { matrix, row, col, type } = current;
+  const gRow = ghostRow();
+  for (let r = 0; r < matrix.length; r++) {
+    for (let c = 0; c < matrix[r].length; c++) {
+      if (matrix[r][c] && gRow + r >= 0) {
+        drawGhostCell(gRow + r, col + c, COLORS[type]);
+      }
+    }
+  }
   for (let r = 0; r < matrix.length; r++) {
     for (let c = 0; c < matrix[r].length; c++) {
       if (matrix[r][c] && row + r >= 0) {
@@ -279,6 +323,26 @@ function drawNext() {
   nextCtx.restore();
 }
 
+function drawHold() {
+  holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
+  if (!held) return;
+  const matrix = SHAPES[held];
+  const size = matrix.length;
+  const cell = 24;
+  const offset = (holdCanvas.width - size * cell) / 2;
+  holdCtx.save();
+  holdCtx.translate(offset, offset);
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (matrix[r][c]) {
+        holdCtx.fillStyle = COLORS[held];
+        holdCtx.fillRect(c * cell + 1, r * cell + 1, cell - 2, cell - 2);
+      }
+    }
+  }
+  holdCtx.restore();
+}
+
 function loop(time) {
   if (!lastTime) lastTime = time;
   const delta = time - lastTime;
@@ -302,6 +366,8 @@ function loop(time) {
 function start() {
   board = createBoard();
   bag = [];
+  held = null;
+  canHold = true;
   score = 0;
   lines = 0;
   level = 1;
@@ -313,6 +379,7 @@ function start() {
   next = spawnPiece(nextFromBag());
   spawnNext();
   updateStats();
+  drawHold();
   overlay.classList.add("hidden");
   draw();
 }
@@ -342,6 +409,10 @@ document.addEventListener("keydown", (e) => {
     case "p":
     case "P":
       togglePause();
+      break;
+    case "c":
+    case "C":
+      holdPiece();
       break;
   }
 });
