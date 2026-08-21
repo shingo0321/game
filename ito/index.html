@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ITO</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="screen-setup" class="screen">
+    <h1>ITO</h1>
+    <p class="subtitle">数字を口に出さず、例えだけで1〜100の順番を当てよう</p>
+
+    <div class="panel">
+      <h2>プレイヤー（3〜8人）</h2>
+      <div id="player-list"></div>
+      <button id="add-player" class="btn secondary" type="button">＋ プレイヤーを追加</button>
+    </div>
+
+    <div class="panel">
+      <h2>お題</h2>
+      <div class="topic-controls">
+        <label><input type="radio" name="topic-mode" value="random" checked> ランダムに決める</label>
+        <label><input type="radio" name="topic-mode" value="custom"> 自分で入力する</label>
+      </div>
+      <div id="custom-topic-fields" class="custom-topic-fields hidden">
+        <input type="text" id="custom-subject" placeholder="お題（例: 辛い食べ物）">
+        <input type="text" id="custom-low" placeholder="1の例（例: 全く辛くない）">
+        <input type="text" id="custom-high" placeholder="100の例（例: 悶絶するほど激辛）">
+      </div>
+    </div>
+
+    <div id="setup-error" class="error hidden"></div>
+    <button id="start-game" class="btn primary" type="button">スタート</button>
+  </section>
+
+  <section id="screen-reveal" class="screen hidden">
+    <div class="turn-banner">
+      <span id="reveal-current-name">-</span> さんの番です
+    </div>
+    <p class="hint">他の人には画面を見せないでください</p>
+
+    <div id="reveal-card" class="reveal-card">
+      <button id="reveal-peek-btn" class="btn primary big" type="button">タップして自分の数字を見る</button>
+      <div id="reveal-number-view" class="number-view hidden">
+        <div class="topic-reminder">
+          <span id="reveal-topic-low"></span>
+          <span class="topic-subject" id="reveal-topic-subject"></span>
+          <span id="reveal-topic-high"></span>
+        </div>
+        <div id="reveal-number" class="big-number">--</div>
+        <button id="reveal-next-btn" class="btn secondary" type="button">確認しました（隠す）</button>
+      </div>
+    </div>
+    <div class="progress" id="reveal-progress"></div>
+  </section>
+
+  <section id="screen-order" class="screen hidden">
+    <h2>相談して順番を並び替えよう</h2>
+    <div class="topic-reminder standalone">
+      <span id="order-topic-low"></span>
+      <span class="topic-subject" id="order-topic-subject"></span>
+      <span id="order-topic-high"></span>
+    </div>
+    <p class="hint">小さい数字だと思う人が上になるように並べ替えてください</p>
+    <div id="order-list" class="order-list"></div>
+    <button id="confirm-order" class="btn primary" type="button">この順番で発表する</button>
+  </section>
+
+  <section id="screen-result-reveal" class="screen hidden">
+    <h2>発表タイム</h2>
+    <div class="topic-reminder standalone">
+      <span id="rr-topic-low"></span>
+      <span class="topic-subject" id="rr-topic-subject"></span>
+      <span id="rr-topic-high"></span>
+    </div>
+    <div id="reveal-order-list" class="reveal-order-list"></div>
+    <button id="reveal-next-card" class="btn primary" type="button">めくる</button>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <h2 id="result-headline">結果</h2>
+    <div id="result-summary" class="result-summary"></div>
+    <div id="result-list" class="reveal-order-list"></div>
+    <div class="result-actions">
+      <button id="replay-same" class="btn primary" type="button">同じメンバーでもう一度</button>
+      <button id="replay-reset" class="btn secondary" type="button">最初から</button>
+    </div>
+  </section>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
